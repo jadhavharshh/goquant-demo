@@ -1,4 +1,3 @@
-// components/MarketDepthChart.tsx
 import React, { useEffect, useState } from 'react'
 import { OrderbookData } from '../lib/types'
 import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -16,50 +15,89 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
         price: parseFloat(price),
         quantity: parseFloat(quantity)
       }))
+      
       const asks = data.asks.map(([price, quantity]) => ({
         price: parseFloat(price),
         quantity: parseFloat(quantity)
       }))
 
-      // Calculate cumulative bids and asks
+      // Sort by price
+      bids.sort((a, b) => b.price - a.price) // Descending
+      asks.sort((a, b) => a.price - b.price) // Ascending
+
+      // Calculate cumulative values
       let cumulativeBid = 0
+      const bidData = bids.map(item => {
+        cumulativeBid += item.quantity
+        return {
+          price: item.price,
+          cumulativeBid: cumulativeBid,
+          cumulativeAsk: 0
+        }
+      })
+
       let cumulativeAsk = 0
-
-      const depthData = []
-      for (let i = 0; i < Math.max(bids.length, asks.length); i++) {
-        if (bids[i]) {
-          cumulativeBid += bids[i].quantity
+      const askData = asks.map(item => {
+        cumulativeAsk += item.quantity
+        return {
+          price: item.price,
+          cumulativeBid: 0,
+          cumulativeAsk: cumulativeAsk
         }
-        if (asks[i]) {
-          cumulativeAsk += asks[i].quantity
-        }
-        depthData.push({
-          price: bids[i]?.price || asks[i]?.price,
-          cumulativeBid,
-          cumulativeAsk
-        })
-      }
+      })
 
-      setChartData(depthData)
+      // Combine data for the chart
+      const combinedData = [...bidData, ...askData].sort((a, b) => a.price - b.price)
+      setChartData(combinedData)
     }
   }, [data])
 
   if (!data) {
-    return <div>Loading...</div>
+    return <div className="flex justify-center items-center h-full text-gray-400">Loading data...</div>
   }
 
   return (
-    <div className="my-6">
-      <h2 className="text-2xl font-bold mb-4">Market Depth Chart</h2>
-      <ResponsiveContainer width="100%" height={400}>
+    <div className="w-full h-full">
+      <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="price" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="cumulativeBid" stroke="#4CAF50" strokeWidth={2} />
-          <Line type="monotone" dataKey="cumulativeAsk" stroke="#F44336" strokeWidth={2} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis 
+            dataKey="price" 
+            stroke="#6b7280"
+            tick={{ fill: '#9ca3af' }}
+            domain={['dataMin', 'dataMax']}
+          />
+          <YAxis 
+            stroke="#6b7280"
+            tick={{ fill: '#9ca3af' }}
+          />
+          <Tooltip 
+            contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#f9fafb' }}
+            labelStyle={{ color: '#f9fafb' }}
+            formatter={(value) => [
+              `${Number(value).toFixed(2)} BTC`,
+              typeof value === 'number' && value > 0 ? 'Volume' : ''
+            ]
+          } />
+          <Legend wrapperStyle={{ color: '#9ca3af' }} />
+          <Line 
+            type="monotone" 
+            name="Bids" 
+            dataKey="cumulativeBid" 
+            stroke="#10b981" 
+            dot={false} 
+            strokeWidth={2}
+            isAnimationActive={false} 
+          />
+          <Line 
+            type="monotone" 
+            name="Asks" 
+            dataKey="cumulativeAsk" 
+            stroke="#ef4444" 
+            dot={false} 
+            strokeWidth={2}
+            isAnimationActive={false}
+          />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
