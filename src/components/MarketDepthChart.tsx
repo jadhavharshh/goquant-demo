@@ -102,13 +102,13 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
       const askVolume = payload[0].payload.cumulativeAsk
       
       return (
-        <div className="custom-tooltip bg-gray-900 border border-gray-700 p-2 rounded shadow-lg text-xs">
-          <p className="font-medium text-white">Price: ${price.toFixed(2)}</p>
+        <div className="custom-tooltip bg-[#1e2329] border border-[#232a32] p-2 rounded shadow-lg text-xs">
+          <p className="font-medium text-[#eaecef] mb-1">Price: ${price.toFixed(2)}</p>
           {bidVolume > 0 && (
-            <p className="text-green-400">Bid Volume: {bidVolume.toFixed(4)} BTC</p>
+            <p className="text-[#0ecb81]">Bid Volume: {bidVolume.toFixed(4)} BTC</p>
           )}
           {askVolume > 0 && (
-            <p className="text-red-400">Ask Volume: {askVolume.toFixed(4)} BTC</p>
+            <p className="text-[#f6465d]">Ask Volume: {askVolume.toFixed(4)} BTC</p>
           )}
         </div>
       )
@@ -118,8 +118,8 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
 
   if (!data) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-400">
-        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <div className="flex justify-center items-center h-full text-[#848e9c]">
+        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[#f0b90b]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -130,49 +130,43 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
 
   return (
     <div className="w-full h-full">
-      <div className="flex justify-between items-center mb-1 px-1">
-        <div className="text-xs text-gray-400">Volume (BTC)</div>
-        {midPrice && (
-          <div className="text-xs text-blue-400">Mid Price: <span className="font-medium">${midPrice.toFixed(2)}</span></div>
-        )}
-      </div>
-      <ResponsiveContainer width="100%" height="94%">
-        <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" opacity={0.6} />
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#232a32" opacity={0.8} />
           <XAxis 
             dataKey="price" 
-            stroke="#6b7280"
-            tick={{ fill: '#9ca3af', fontSize: 11 }}
+            stroke="#848e9c"
+            tick={{ fill: '#848e9c', fontSize: 10 }}
             tickFormatter={formatPrice}
             domain={['dataMin', 'dataMax']}
             tickCount={7}
           />
           <YAxis 
-            stroke="#6b7280"
-            tick={{ fill: '#9ca3af', fontSize: 11 }}
+            stroke="#848e9c"
+            tick={{ fill: '#848e9c', fontSize: 10 }}
             tickFormatter={formatVolume}
-            width={40}
+            width={36}
           />
           <Tooltip content={<CustomTooltip />} />
           <Legend 
-            wrapperStyle={{ fontSize: 11, color: '#9ca3af' }}
+            wrapperStyle={{ fontSize: 10, bottom: 0 }}
             align="right" 
             verticalAlign="top"
             height={20}
             iconType="circle"
-            iconSize={8}
+            iconSize={6}
           />
           {midPrice && (
             <ReferenceLine 
               x={midPrice} 
-              stroke="#3b82f6" 
-              strokeWidth={1.5} 
+              stroke="#f0b90b" 
+              strokeWidth={1} 
               strokeDasharray="3 3" 
               label={{ 
                 value: `$${midPrice.toFixed(2)}`,
                 position: 'top', 
-                fill: '#3b82f6', 
-                fontSize: 11 
+                fill: '#f0b90b', 
+                fontSize: 10 
               }} 
             />
           )}
@@ -180,20 +174,20 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
             type="monotone" 
             name="Bids" 
             dataKey="cumulativeBid" 
-            stroke="#10b981" 
-            fill="#10b98133"
+            stroke="#0ecb81" 
+            fill="#0ecb8120"
             dot={false} 
-            strokeWidth={2}
+            strokeWidth={1.5}
             isAnimationActive={false} 
           />
           <Area
             type="monotone" 
             name="Asks" 
             dataKey="cumulativeAsk" 
-            stroke="#ef4444" 
-            fill="#ef444433"
+            stroke="#f6465d" 
+            fill="#f6465d20"
             dot={false} 
-            strokeWidth={2}
+            strokeWidth={1.5}
             isAnimationActive={false}
           />
         </ComposedChart>

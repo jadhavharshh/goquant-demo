@@ -72,9 +72,9 @@ const SpreadIndicator: React.FC<SpreadIndicatorProps> = ({ data }) => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="custom-tooltip bg-gray-900 border border-gray-700 p-2 rounded shadow-lg text-xs">
-          <p className="text-gray-300">{formatTime(label)}</p>
-          <p className="text-blue-400 font-medium">
+        <div className="custom-tooltip bg-[#1e2329] border border-[#232a32] p-2 rounded shadow-lg text-xs">
+          <p className="text-[#848e9c] mb-0.5">{formatTime(label)}</p>
+          <p className="text-[#f0b90b] font-medium">
             Spread: ${payload[0].value.toFixed(2)}
           </p>
         </div>
@@ -85,8 +85,8 @@ const SpreadIndicator: React.FC<SpreadIndicatorProps> = ({ data }) => {
 
   if (spread === null) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-400">
-        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <div className="flex justify-center items-center h-full text-[#848e9c]">
+        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[#f0b90b]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -97,22 +97,22 @@ const SpreadIndicator: React.FC<SpreadIndicatorProps> = ({ data }) => {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <div className="bg-gray-900/70 rounded p-1.5 text-center">
-          <div className="text-xs text-gray-400 mb-0.5">Current</div>
-          <div className="text-blue-400 font-medium">${spread.toFixed(2)}</div>
+      <div className="grid grid-cols-3 gap-1 mb-2">
+        <div className="bg-[#1e2329] rounded p-1 text-center">
+          <div className="text-[10px] text-[#848e9c] mb-0.5">Current</div>
+          <div className="text-[#f0b90b] text-xs font-medium">${spread.toFixed(2)}</div>
         </div>
         
-        <div className="bg-gray-900/70 rounded p-1.5 text-center">
-          <div className="text-xs text-gray-400 mb-0.5">Min/Max</div>
-          <div className="text-blue-400 font-medium text-xs">
+        <div className="bg-[#1e2329] rounded p-1 text-center">
+          <div className="text-[10px] text-[#848e9c] mb-0.5">Min/Max</div>
+          <div className="text-[#eaecef] text-[10px]">
             ${minSpread?.toFixed(2) || "-"} / ${maxSpread?.toFixed(2) || "-"}
           </div>
         </div>
         
-        <div className="bg-gray-900/70 rounded p-1.5 text-center">
-          <div className="text-xs text-gray-400 mb-0.5">Average</div>
-          <div className="text-blue-400 font-medium">
+        <div className="bg-[#1e2329] rounded p-1 text-center">
+          <div className="text-[10px] text-[#848e9c] mb-0.5">Average</div>
+          <div className="text-[#eaecef] text-xs">
             ${avgSpread?.toFixed(2) || "-"}
           </div>
         </div>
@@ -121,28 +121,28 @@ const SpreadIndicator: React.FC<SpreadIndicatorProps> = ({ data }) => {
       <div className="flex-1 w-full">
         {spreadHistory.length > 1 ? (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={spreadHistory}>
+            <AreaChart data={spreadHistory} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="spreadGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#f0b90b" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#f0b90b" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" opacity={0.6} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#232a32" opacity={0.6} />
               <XAxis 
                 dataKey="timestamp" 
                 tickFormatter={formatTime} 
                 domain={['dataMin', 'dataMax']}
-                stroke="#6b7280"
-                tick={{ fill: '#9ca3af', fontSize: 10 }}
+                stroke="#848e9c"
+                tick={{ fill: '#848e9c', fontSize: 9 }}
                 minTickGap={30}
               />
               <YAxis 
                 domain={yDomain} 
-                stroke="#6b7280"
-                tick={{ fill: '#9ca3af', fontSize: 10 }}
+                stroke="#848e9c"
+                tick={{ fill: '#848e9c', fontSize: 9 }}
                 tickFormatter={(value) => `$${value.toFixed(1)}`}
-                width={40}
+                width={30}
               />
               <Tooltip content={<CustomTooltip />} />
               {avgSpread && (
@@ -151,28 +151,29 @@ const SpreadIndicator: React.FC<SpreadIndicatorProps> = ({ data }) => {
                   label={{ 
                     value: `Avg: $${avgSpread.toFixed(2)}`,
                     position: 'right',
-                    fill: '#60a5fa',
-                    fontSize: 10
+                    fill: '#f0b90b',
+                    fontSize: 9
                   }} 
-                  stroke="#60a5fa" 
+                  stroke="#f0b90b" 
                   strokeDasharray="3 3" 
+                  strokeOpacity={0.8}
                 />
               )}
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#3b82f6"
-                strokeWidth={2}
+                stroke="#f0b90b"
+                strokeWidth={1.5}
                 fill="url(#spreadGradient)"
                 isAnimationActive={false}
                 dot={false}
-                activeDot={{ r: 4, fill: '#60a5fa', stroke: '#3b82f6' }}
+                activeDot={{ r: 3, fill: '#f0b90b', stroke: '#f0b90b' }}
               />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500 text-xs">Collecting data for chart...</p>
+            <p className="text-[#848e9c] text-xs">Collecting data for chart...</p>
           </div>
         )}
       </div>
