@@ -11,21 +11,21 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
   // Calculate the max quantity for visual depth bars
   const maxQuantity = useMemo(() => {
     if (!data) return 1;
-    
+
     const bidMax = Math.max(...data.bids.map(([_, qty]) => parseFloat(qty)));
     const askMax = Math.max(...data.asks.map(([_, qty]) => parseFloat(qty)));
     return Math.max(bidMax, askMax);
   }, [data]);
-  
+
   // Calculate market spread
   const spread = useMemo(() => {
     if (!data || data.bids.length === 0 || data.asks.length === 0) return null;
-    
+
     const bestBid = parseFloat(data.bids[0][0]);
     const bestAsk = parseFloat(data.asks[0][0]);
     const spreadAmount = bestAsk - bestBid;
     const spreadPercent = (spreadAmount / bestBid) * 100;
-    
+
     return {
       amount: spreadAmount,
       percent: spreadPercent
@@ -35,10 +35,10 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
   // Calculate total bid/ask volume
   const volumes = useMemo(() => {
     if (!data) return { bids: 0, asks: 0 };
-    
+
     const bidVolume = data.bids.reduce((sum, [price, qty]) => sum + parseFloat(price) * parseFloat(qty), 0);
     const askVolume = data.asks.reduce((sum, [price, qty]) => sum + parseFloat(price) * parseFloat(qty), 0);
-    
+
     return {
       bids: bidVolume,
       asks: askVolume,
@@ -49,10 +49,10 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
   // Calculate price range
   const priceRange = useMemo(() => {
     if (!data || data.bids.length === 0 || data.asks.length === 0) return null;
-    
+
     const lowestBid = parseFloat(data.bids[data.bids.length - 1][0]);
     const highestAsk = parseFloat(data.asks[data.asks.length - 1][0]);
-    
+
     return {
       low: lowestBid,
       high: highestAsk,
@@ -60,11 +60,11 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
     };
   }, [data]);
 
-  // Define consistent column classes for alignment
+  // Define column styles without fixed widths
   const columnClasses = {
-    price: "w-[35%] py-0.5 px-1 relative z-10",
-    amount: "w-[30%] text-right py-0.5 px-1 relative z-10",
-    total: "w-[35%] text-right py-0.5 px-1 relative z-10"
+    price: "py-0.5 px-2 relative z-10 text-left",
+    amount: "py-0.5 px-2 relative z-10 text-right",
+    total: "py-0.5 px-2 relative z-10 text-right"
   };
 
   if (!data) {
@@ -98,7 +98,7 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
             </button>
           </div>
         </div>
-        
+
         {/* Main content area */}
         <div className="p-3 flex-1 flex flex-col">
           {/* Metrics panels */}
@@ -112,7 +112,7 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
                 </span>
               </div>
             </div>
-            
+
             <div className="bg-[#182433] rounded-lg p-1.5 text-center shadow-md border border-[#232f3e]/60">
               <div className="text-[10px] text-[#99a4b2] mb-0.5">Volume Ratio</div>
               <div className={`text-xs font-medium ${(volumes.ratio ?? 0) > 1 ? 'text-[#0ecb81]' : 'text-[#f6465d]'}`}>
@@ -120,7 +120,7 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
                 <span className="text-[#99a4b2] text-[9px] ml-1">B/A</span>
               </div>
             </div>
-            
+
             <div className="bg-[#182433] rounded-lg p-1.5 text-center shadow-md border border-[#232f3e]/60">
               <div className="text-[10px] text-[#99a4b2] mb-0.5">Depth</div>
               <div className="text-[#eaecef] text-xs">
@@ -132,7 +132,7 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
               </div>
             </div>
           </div>
-          
+
           {/* Optional spread indicator */}
           {spread && (
             <div className="text-xs py-1 px-2 mb-2 bg-[#1e2329] rounded flex justify-between items-center">
@@ -142,18 +142,25 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
               </span>
             </div>
           )}
-          
+
           {/* Orderbook content */}
           <div className="flex-1 grid grid-cols-1 gap-0">
             {/* Asks - reversed to show highest on top */}
+
+            {/* Asks - reversed to show highest on top */}
             <div>
               <div className="overflow-y-auto max-h-[200px] scrollbar-thin scrollbar-thumb-[#2b3139] scrollbar-track-[#1e2329]">
-                <table className="w-full text-xs">
+                <table className="w-full table-fixed text-xs">
+                  <colgroup>
+                    <col className="w-1/3" />
+                    <col className="w-1/3" />
+                    <col className="w-1/3" />
+                  </colgroup>
                   <thead className="sticky top-0 bg-[#161b22] z-10">
                     <tr className="text-[#848e9c]">
-                      <th className={`${columnClasses.price} font-medium text-[11px]`}>Price (USD)</th>
-                      <th className={`${columnClasses.amount} font-medium text-[11px]`}>Amount ({currencySymbol})</th>
-                      <th className={`${columnClasses.total} font-medium text-[11px]`}>Total</th>
+                      <th className="font-medium text-[11px] text-left px-2 py-1">Price (USD)</th>
+                      <th className="font-medium text-[11px] text-right px-2 py-1">Amount ({currencySymbol})</th>
+                      <th className="font-medium text-[11px] text-right px-2 py-1">Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -161,20 +168,27 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
                       const priceNum = parseFloat(price);
                       const quantityNum = parseFloat(quantity);
                       const percentOfMax = (quantityNum / maxQuantity) * 100;
-                      
+
                       return (
-                        <tr key={`ask-${index}`} className="relative hover:bg-[#2b3139]/30 transition-colors duration-100">
-                          {/* Background bar for depth visualization */}
-                          <td colSpan={3} className="absolute inset-0 z-0">
-                            <div 
-                              className="h-full bg-[#f6465d]/10" 
-                              style={{ width: `${percentOfMax}%`, marginLeft: 'auto' }}
-                            />
+                        <tr key={`ask-${index}`} className="hover:bg-[#2b3139]/30 transition-colors duration-100 relative">
+                          <td className="relative z-10 px-2 py-0.5 text-left">
+                            <span className="text-[#f6465d] font-medium">
+                              {priceNum.toFixed(2)}
+                            </span>
                           </td>
-                          {/* Content on top of the bar */}
-                          <td className={`${columnClasses.price} text-[#f6465d] font-medium`}>{priceNum.toFixed(2)}</td>
-                          <td className={columnClasses.amount}>{quantityNum.toFixed(5)}</td>
-                          <td className={`${columnClasses.total} text-[#848e9c]`}>${(priceNum * quantityNum).toFixed(2)}</td>
+                          <td className="relative z-10 px-2 py-0.5 text-right">
+                            <span>
+                              {quantityNum.toFixed(5)}
+                            </span>
+                          </td>
+                          <td className="relative z-10 px-2 py-0.5 text-right">
+                            <span className="text-[#848e9c]">
+                              ${(priceNum * quantityNum).toFixed(2)}
+                            </span>
+                          </td>
+                          {/* Background bar that spans the entire row */}
+                          <div className="absolute top-0 right-0 bottom-0 bg-[#f6465d]/10"
+                            style={{ width: `${percentOfMax}%` }} />
                         </tr>
                       );
                     })}
@@ -186,12 +200,17 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
             {/* Bids */}
             <div className="border-t border-[#232a32]">
               <div className="overflow-y-auto max-h-[200px] scrollbar-thin scrollbar-thumb-[#2b3139] scrollbar-track-[#1e2329]">
-                <table className="w-full text-xs">
+                <table className="w-full table-fixed text-xs">
+                  <colgroup>
+                    <col className="w-1/3" />
+                    <col className="w-1/3" />
+                    <col className="w-1/3" />
+                  </colgroup>
                   <thead className="sticky top-0 bg-[#161b22] z-10">
                     <tr className="text-[#848e9c]">
-                      <th className={`${columnClasses.price} font-medium text-[11px]`}>Price (USD)</th>
-                      <th className={`${columnClasses.amount} font-medium text-[11px]`}>Amount ({currencySymbol})</th>
-                      <th className={`${columnClasses.total} font-medium text-[11px]`}>Total</th>
+                      <th className="font-medium text-[11px] text-left px-2 py-1">Price (USD)</th>
+                      <th className="font-medium text-[11px] text-right px-2 py-1">Amount ({currencySymbol})</th>
+                      <th className="font-medium text-[11px] text-right px-2 py-1">Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -199,20 +218,27 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
                       const priceNum = parseFloat(price);
                       const quantityNum = parseFloat(quantity);
                       const percentOfMax = (quantityNum / maxQuantity) * 100;
-                      
+
                       return (
-                        <tr key={`bid-${index}`} className="relative hover:bg-[#2b3139]/30 transition-colors duration-100">
-                          {/* Background bar for depth visualization */}
-                          <td colSpan={3} className="absolute inset-0 z-0">
-                            <div 
-                              className="h-full bg-[#0ecb81]/10" 
-                              style={{ width: `${percentOfMax}%` }}
-                            />
+                        <tr key={`bid-${index}`} className="hover:bg-[#2b3139]/30 transition-colors duration-100 relative">
+                          <td className="relative z-10 px-2 py-0.5 text-left">
+                            <span className="text-[#0ecb81] font-medium">
+                              {priceNum.toFixed(2)}
+                            </span>
                           </td>
-                          {/* Content on top of the bar */}
-                          <td className={`${columnClasses.price} text-[#0ecb81] font-medium`}>{priceNum.toFixed(2)}</td>
-                          <td className={columnClasses.amount}>{quantityNum.toFixed(5)}</td>
-                          <td className={`${columnClasses.total} text-[#848e9c]`}>${(priceNum * quantityNum).toFixed(2)}</td>
+                          <td className="relative z-10 px-2 py-0.5 text-right">
+                            <span>
+                              {quantityNum.toFixed(5)}
+                            </span>
+                          </td>
+                          <td className="relative z-10 px-2 py-0.5 text-right">
+                            <span className="text-[#848e9c]">
+                              ${(priceNum * quantityNum).toFixed(2)}
+                            </span>
+                          </td>
+                          {/* Background bar that spans the entire row */}
+                          <div className="absolute top-0 left-0 bottom-0 bg-[#0ecb81]/10"
+                            style={{ width: `${percentOfMax}%` }} />
                         </tr>
                       );
                     })}
@@ -220,6 +246,8 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
                 </table>
               </div>
             </div>
+
+// ...existing code...
           </div>
         </div>
       </div>
