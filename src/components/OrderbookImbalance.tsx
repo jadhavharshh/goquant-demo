@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react'
 import { OrderbookData } from '../lib/types'
 
 interface OrderbookImbalanceProps {
-  data: OrderbookData | null
+  data: OrderbookData | null;
+  currencySymbol?: string;
 }
 
 interface ImbalanceHistory {
@@ -11,7 +12,7 @@ interface ImbalanceHistory {
   percent: number;
 }
 
-const OrderbookImbalance: React.FC<OrderbookImbalanceProps> = ({ data }) => {
+const OrderbookImbalance: React.FC<OrderbookImbalanceProps> = ({ data , currencySymbol = 'BTC' }) => {
   const [imbalance, setImbalance] = useState<number | null>(null)
   const [imbalancePercent, setImbalancePercent] = useState<number>(50)
   const [history, setHistory] = useState<ImbalanceHistory[]>([])
@@ -83,8 +84,8 @@ const OrderbookImbalance: React.FC<OrderbookImbalanceProps> = ({ data }) => {
     <div className="w-full h-full flex flex-col">
       <div className="flex items-center justify-between mb-2">
         <div className="text-xs flex items-center">
-          <div className={`text-sm font-medium ${imbalance > 0 ? 'text-[#0ecb81]' : 'text-[#f6465d]'}`}>
-            {Math.abs(imbalance).toFixed(2)} BTC
+        <div className={`text-sm font-medium ${imbalance > 0 ? 'text-[#0ecb81]' : 'text-[#f6465d]'}`}>
+            {Math.abs(imbalance).toFixed(2)} {currencySymbol}
           </div>
           
           {/* Trend indicator */}

@@ -2,10 +2,12 @@ import React, { useMemo } from 'react'
 import { OrderbookData } from '../lib/types'
 
 interface OrderbookProps {
-  data: OrderbookData | null
+  data: OrderbookData | null;
+  currencySymbol?: string;
 }
 
-const Orderbook: React.FC<OrderbookProps> = ({ data }) => {
+const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) => {
+
   // Calculate the max quantity for visual depth bars
   const maxQuantity = useMemo(() => {
     if (!data) return 1;
@@ -143,7 +145,8 @@ const Orderbook: React.FC<OrderbookProps> = ({ data }) => {
                   <thead className="sticky top-0 bg-[#161b22] z-10">
                     <tr className="text-[#848e9c]">
                       <th className="text-left py-1 px-1 font-medium text-[11px]">Price (USD)</th>
-                      <th className="text-right py-1 px-1 font-medium text-[11px]">Amount (BTC)</th>
+                      <th className="text-right py-1 px-1 font-medium text-[11px]">Amount ({currencySymbol})</th>
+
                       <th className="text-right py-1 px-1 font-medium text-[11px]">Total</th>
                     </tr>
                   </thead>

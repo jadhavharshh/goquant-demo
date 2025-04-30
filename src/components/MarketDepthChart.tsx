@@ -1,23 +1,27 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { OrderbookData } from '../lib/types'
-import { 
-  ComposedChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer, 
+import {
+  ComposedChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
   ReferenceLine,
   Area
 } from 'recharts'
 
 interface MarketDepthChartProps {
-  data: OrderbookData | null
+  data: OrderbookData | null;
+  currencySymbol?: string;
 }
 
-const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
+const MarketDepthChart: React.FC<MarketDepthChartProps> = ({
+  data,
+  currencySymbol = 'BTC'
+}) => {
   const [chartData, setChartData] = useState<{ price: number, cumulativeBid: number, cumulativeAsk: number }[]>([])
   const [midPrice, setMidPrice] = useState<number | null>(null)
 
@@ -28,7 +32,7 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
         price: parseFloat(price),
         quantity: parseFloat(quantity)
       }))
-      
+
       const asks = data.asks.map(([price, quantity]) => ({
         price: parseFloat(price),
         quantity: parseFloat(quantity)
@@ -69,10 +73,10 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
       // Combine data for the chart - use fewer points for smoother rendering
       // Take every Nth point to reduce density but maintain shape
       const skipFactor = Math.max(1, Math.floor((bidData.length + askData.length) / 100))
-      
+
       const filteredBids = bidData.filter((_, i) => i % skipFactor === 0 || i === 0 || i === bidData.length - 1)
       const filteredAsks = askData.filter((_, i) => i % skipFactor === 0 || i === 0 || i === askData.length - 1)
-      
+
       const combinedData = [...filteredBids, ...filteredAsks].sort((a, b) => a.price - b.price)
       setChartData(combinedData)
     }
@@ -100,15 +104,15 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
       const price = payload[0].payload.price
       const bidVolume = payload[0].payload.cumulativeBid
       const askVolume = payload[0].payload.cumulativeAsk
-      
+
       return (
         <div className="custom-tooltip bg-[#1e2329] border border-[#232a32] p-2 rounded shadow-lg text-xs">
           <p className="font-medium text-[#eaecef] mb-1">Price: ${price.toFixed(2)}</p>
           {bidVolume > 0 && (
-            <p className="text-[#0ecb81]">Bid Volume: {bidVolume.toFixed(4)} BTC</p>
+            <p className="text-[#0ecb81]">Bid Volume: {bidVolume.toFixed(4)} {currencySymbol}</p>
           )}
           {askVolume > 0 && (
-            <p className="text-[#f6465d]">Ask Volume: {askVolume.toFixed(4)} BTC</p>
+            <p className="text-[#f6465d]">Ask Volume: {askVolume.toFixed(4)} {currencySymbol}</p>
           )}
         </div>
       )
@@ -133,60 +137,60 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({ data }) => {
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#232a32" opacity={0.8} />
-          <XAxis 
-            dataKey="price" 
+          <XAxis
+            dataKey="price"
             stroke="#848e9c"
             tick={{ fill: '#848e9c', fontSize: 10 }}
             tickFormatter={formatPrice}
             domain={['dataMin', 'dataMax']}
             tickCount={7}
           />
-          <YAxis 
+          <YAxis
             stroke="#848e9c"
             tick={{ fill: '#848e9c', fontSize: 10 }}
             tickFormatter={formatVolume}
             width={36}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Legend 
+          <Legend
             wrapperStyle={{ fontSize: 10, bottom: 0 }}
-            align="right" 
+            align="right"
             verticalAlign="top"
             height={20}
             iconType="circle"
             iconSize={6}
           />
           {midPrice && (
-            <ReferenceLine 
-              x={midPrice} 
-              stroke="#f0b90b" 
-              strokeWidth={1} 
-              strokeDasharray="3 3" 
-              label={{ 
+            <ReferenceLine
+              x={midPrice}
+              stroke="#f0b90b"
+              strokeWidth={1}
+              strokeDasharray="3 3"
+              label={{
                 value: `$${midPrice.toFixed(2)}`,
-                position: 'top', 
-                fill: '#f0b90b', 
-                fontSize: 10 
-              }} 
+                position: 'top',
+                fill: '#f0b90b',
+                fontSize: 10
+              }}
             />
           )}
           <Area
-            type="monotone" 
-            name="Bids" 
-            dataKey="cumulativeBid" 
-            stroke="#0ecb81" 
+            type="monotone"
+            name="Bids"
+            dataKey="cumulativeBid"
+            stroke="#0ecb81"
             fill="#0ecb8120"
-            dot={false} 
+            dot={false}
             strokeWidth={1.5}
-            isAnimationActive={false} 
+            isAnimationActive={false}
           />
           <Area
-            type="monotone" 
-            name="Asks" 
-            dataKey="cumulativeAsk" 
-            stroke="#f6465d" 
+            type="monotone"
+            name="Asks"
+            dataKey="cumulativeAsk"
+            stroke="#f6465d"
             fill="#f6465d20"
-            dot={false} 
+            dot={false}
             strokeWidth={1.5}
             isAnimationActive={false}
           />

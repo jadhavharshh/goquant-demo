@@ -1,11 +1,11 @@
 "use client"
-import React, { useEffect, useState } from 'react'
-import { fetchOrderbook } from '../lib/api'
+import React, { useEffect, useState, useRef } from 'react'
 import { OrderbookData } from '../lib/types'
 import Orderbook from '../components/Orderbook'
 import SpreadIndicator from '../components/SpreadIndicator'
 import OrderbookImbalance from '../components/OrderbookImbalance'
 import MarketDepthChart from '../components/MarketDepthChart'
+import TradingPairSelector from '@/components/TradingPairSelector'
 
 const Page: React.FC = () => {
   const [orderbookData, setOrderbookData] = useState<OrderbookData | null>(null)
@@ -18,53 +18,107 @@ const Page: React.FC = () => {
   const [orderSide, setOrderSide] = useState<string>("buy")
   const [quantity, setQuantity] = useState<string>("0.01")
   const [price, setPrice] = useState<string>("0")
-
+  const [tradingPair, setTradingPair] = useState("BTCUSDT")
+  
+  // WebSocket reference
+  const ws = useRef<WebSocket | null>(null)
+  
+  // Handle trading pair changes
+  const handlePairChange = (newPair: string) => {
+    console.log(`Changing trading pair from ${tradingPair} to ${newPair}`)
+    
+    // Clear current data when changing pairs
+    setOrderbookData(null)
+    setIsLoading(true)
+    
+    // Update the trading pair state
+    setTradingPair(newPair)
+  }
+  
+  // Setup WebSocket connection
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true)
-        const data = await fetchOrderbook()
-        setOrderbookData(data)
-        setLastUpdated(new Date())
-        
-        // Set current price based on mid-price
-        if (data) {
-          const bestBid = parseFloat(data.bids[0][0])
-          const bestAsk = parseFloat(data.asks[0][0])
-          const midPrice = (bestBid + bestAsk) / 2
-          
-          // Calculate price change (simulated here)
-          if (currentPrice) {
-            setPriceChange(midPrice - currentPrice)
-          }
-          
-          setCurrentPrice(midPrice)
-          setPrice(midPrice.toFixed(2))
-        }
-      } catch (error) {
-        console.error('Error fetching orderbook data:', error)
-      } finally {
-        setIsLoading(false)
-      }
+    console.log(`Setting up WebSocket for ${tradingPair}`)
+    
+    // Close any existing connection
+    if (ws.current) {
+      console.log('Closing existing WebSocket connection')
+      ws.current.close()
     }
-
-    fetchData()
-    const interval = setInterval(fetchData, 1000) // Update every second
-    return () => clearInterval(interval)
-  }, [currentPrice])
-
-  const handleManualRefresh = async () => {
-    try {
-      setIsLoading(true)
-      const data = await fetchOrderbook()
-      setOrderbookData(data)
-      setLastUpdated(new Date())
-    } catch (error) {
-      console.error('Error fetching orderbook data:', error)
-    } finally {
+    
+    // Create new WebSocket connection
+    const wsUrl = `wss://stream.binance.com:9443/ws/${tradingPair.toLowerCase()}@depth20@100ms`
+    console.log(`Connecting to: ${wsUrl}`)
+    
+    const socket = new WebSocket(wsUrl)
+    ws.current = socket
+    
+    // Connection opened
+    socket.onopen = () => {
+      console.log(`WebSocket connected for ${tradingPair}`)
       setIsLoading(false)
     }
-  }
+    
+    // Listen for messages
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        
+        // Ensure data has the expected structure
+        if (data && data.bids && data.asks) {
+          // Convert to your existing format
+          const formattedData: OrderbookData = {
+            bids: data.bids,
+            asks: data.asks
+          }
+          
+          setOrderbookData(formattedData)
+          setLastUpdated(new Date())
+          
+          // Update current price
+          if (formattedData.bids.length > 0 && formattedData.asks.length > 0) {
+            const bestBid = parseFloat(formattedData.bids[0][0])
+            const bestAsk = parseFloat(formattedData.asks[0][0])
+            const midPrice = (bestBid + bestAsk) / 2
+            
+            // Calculate price change
+            if (currentPrice) {
+              setPriceChange(midPrice - currentPrice)
+            }
+            
+            setCurrentPrice(midPrice)
+            setPrice(midPrice.toFixed(2))
+          }
+        } else {
+          console.error('Unexpected WebSocket data format:', data)
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket data:', error)
+      }
+    }
+    
+    // Handle errors
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error)
+      setIsLoading(false)
+    }
+    
+    // Connection closed
+    socket.onclose = () => {
+      console.log(`WebSocket closed for ${tradingPair}`)
+    }
+    
+    // Cleanup on unmount or when tradingPair changes
+    return () => {
+      if (socket && socket.readyState !== WebSocket.CLOSED) {
+        console.log(`Cleanup: closing WebSocket for ${tradingPair}`)
+        socket.close()
+      }
+    }
+  }, [tradingPair]) // Reconnect when trading pair changes
+  
+  // Format the current trading pair for display in header
+  const formattedTradingPair = tradingPair.replace('USDT', '/USDT')
+  const currencySymbol = tradingPair.replace('USDT', '')
 
   return (
     <div className="min-h-screen bg-[#0b0e11] text-[#eaecef] flex flex-col">
@@ -84,28 +138,6 @@ const Page: React.FC = () => {
             <span className="text-[#848e9c] text-xs">
               {lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : ''}
             </span>
-            <button 
-              onClick={handleManualRefresh}
-              className="bg-[#1e2329] hover:bg-[#2b3139] text-[#eaecef] px-3 py-1 rounded text-xs flex items-center"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-3 w-3 text-[#eaecef]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Updating
-                </>
-              ) : (
-                <>
-                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Refresh
-                </>
-              )}
-            </button>
             <div className="relative w-7 h-7 rounded-full bg-[#f0b90b] flex items-center justify-center text-xs font-medium text-[#0b0e11]">
               US
             </div>
@@ -117,7 +149,7 @@ const Page: React.FC = () => {
       <div className="bg-[#161b22] border-b border-[#232a32] px-4 py-2">
         <div className="flex flex-wrap items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="text-lg font-bold">BTC/USD</div>
+            <div className="text-lg font-bold">{formattedTradingPair}</div>
             {currentPrice && (
               <div className="text-lg font-medium">
                 ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -138,6 +170,10 @@ const Page: React.FC = () => {
           </div>
           
           <div className="flex space-x-1 mt-1 md:mt-0">
+            <TradingPairSelector 
+              currentPair={tradingPair} 
+              onPairChange={handlePairChange} 
+            />
             {["1H", "4H", "1D", "1W", "1M"].map(timeframe => (
               <button 
                 key={timeframe}
@@ -165,7 +201,7 @@ const Page: React.FC = () => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <p className="text-sm text-[#eaecef]">Loading market data...</p>
+              <p className="text-sm text-[#eaecef]">Loading market data for {currencySymbol}...</p>
             </div>
           </div>
         )}
@@ -187,7 +223,7 @@ const Page: React.FC = () => {
                 </button>
               </div>
             </div>
-            <Orderbook data={orderbookData} />
+            <Orderbook data={orderbookData} currencySymbol={currencySymbol} />
           </div>
         </div>
 
@@ -213,7 +249,7 @@ const Page: React.FC = () => {
               </div>
             </div>
             <div className="h-[calc(100%-36px)]">
-              <MarketDepthChart data={orderbookData} />
+              <MarketDepthChart data={orderbookData} currencySymbol={currencySymbol} />
             </div>
           </div>
           
@@ -234,7 +270,7 @@ const Page: React.FC = () => {
                 <div className="text-xs text-[#848e9c]">Buy/Sell Pressure</div>
               </div>
               <div className="h-48 p-2">
-                <OrderbookImbalance data={orderbookData} />
+                <OrderbookImbalance data={orderbookData} currencySymbol={currencySymbol} />
               </div>
             </div>
           </div>
