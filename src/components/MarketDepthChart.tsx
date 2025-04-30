@@ -98,6 +98,35 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({
     return volume.toFixed(1)
   }
 
+  // Add this component before your main component
+
+const CustomCursor = ({ x, y, width, height, top, left }: any) => {
+  return (
+    <g>
+      {/* Vertical line */}
+      <line 
+        x1={x} 
+        y1={top} 
+        x2={x} 
+        y2={top + height} 
+        stroke="#f0b90b" 
+        strokeWidth={1} 
+        strokeDasharray="3 3" 
+      />
+      {/* Horizontal line */}
+      <line 
+        x1={left} 
+        y1={y} 
+        x2={left + width} 
+        y2={y} 
+        stroke="#f0b90b" 
+        strokeWidth={1} 
+        strokeDasharray="3 3" 
+      />
+    </g>
+  );
+};
+
   // Custom tooltip formatter
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -105,14 +134,30 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({
       const bidVolume = payload[0].payload.cumulativeBid
       const askVolume = payload[0].payload.cumulativeAsk
 
+      // Calculate distance from mid price if available
+      let priceDistance = '';
+      if (midPrice) {
+        const distance = ((price - midPrice) / midPrice * 100).toFixed(2);
+        priceDistance = `(${distance}% from mid)`;
+      }
+
       return (
-        <div className="custom-tooltip bg-[#1e2329] border border-[#232a32] p-2 rounded shadow-lg text-xs">
-          <p className="font-medium text-[#eaecef] mb-1">Price: ${price.toFixed(2)}</p>
+        <div className="custom-tooltip bg-[#1e2329] border border-[#2f3741] p-2.5 rounded shadow-lg text-xs">
+          <p className="font-medium text-[#eaecef] mb-1.5 flex justify-between">
+            <span>Price:</span> 
+            <span className="ml-3">${price.toFixed(2)} {priceDistance}</span>
+          </p>
           {bidVolume > 0 && (
-            <p className="text-[#0ecb81]">Bid Volume: {bidVolume.toFixed(4)} {currencySymbol}</p>
+            <p className="text-[#0ecb81] flex justify-between mb-0.5">
+              <span>Bid Volume:</span>
+              <span className="ml-3 font-medium">{bidVolume.toFixed(4)} {currencySymbol}</span>
+            </p>
           )}
           {askVolume > 0 && (
-            <p className="text-[#f6465d]">Ask Volume: {askVolume.toFixed(4)} {currencySymbol}</p>
+            <p className="text-[#f6465d] flex justify-between">
+              <span>Ask Volume:</span>
+              <span className="ml-3 font-medium">{askVolume.toFixed(4)} {currencySymbol}</span>
+            </p>
           )}
         </div>
       )
@@ -135,8 +180,23 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({
   return (
     <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#232a32" opacity={0.8} />
+        <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 8 }}>
+          <defs>
+            <linearGradient id="bidGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#0ecb81" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#0ecb81" stopOpacity={0}/>
+            </linearGradient>
+            <linearGradient id="askGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#f6465d" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#f6465d" stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            stroke="#232a32" 
+            opacity={0.5} 
+            vertical={false} 
+          />
           <XAxis
             dataKey="price"
             stroke="#848e9c"
@@ -144,21 +204,25 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({
             tickFormatter={formatPrice}
             domain={['dataMin', 'dataMax']}
             tickCount={7}
+            axisLine={{ stroke: '#2f3741' }}
+            tickLine={{ stroke: '#2f3741' }}
           />
           <YAxis
             stroke="#848e9c"
             tick={{ fill: '#848e9c', fontSize: 10 }}
             tickFormatter={formatVolume}
             width={36}
+            axisLine={{ stroke: '#2f3741' }}
+            tickLine={{ stroke: '#2f3741' }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Legend
-            wrapperStyle={{ fontSize: 10, bottom: 0 }}
+            wrapperStyle={{ fontSize: 10, color: '#848e9c' }}
             align="right"
             verticalAlign="top"
             height={20}
             iconType="circle"
-            iconSize={6}
+            iconSize={8}
           />
           {midPrice && (
             <ReferenceLine
@@ -170,8 +234,10 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({
                 value: `$${midPrice.toFixed(2)}`,
                 position: 'top',
                 fill: '#f0b90b',
-                fontSize: 10
+                fontSize: 10,
+                fontWeight: 500,
               }}
+              isFront
             />
           )}
           <Area
@@ -179,20 +245,22 @@ const MarketDepthChart: React.FC<MarketDepthChartProps> = ({
             name="Bids"
             dataKey="cumulativeBid"
             stroke="#0ecb81"
-            fill="#0ecb8120"
+            fill="url(#bidGradient)"
             dot={false}
             strokeWidth={1.5}
             isAnimationActive={false}
+            activeDot={{ r: 4, fill: '#0ecb81', stroke: '#0ecb81' }}
           />
           <Area
             type="monotone"
             name="Asks"
             dataKey="cumulativeAsk"
             stroke="#f6465d"
-            fill="#f6465d20"
+            fill="url(#askGradient)"
             dot={false}
             strokeWidth={1.5}
             isAnimationActive={false}
+            activeDot={{ r: 4, fill: '#f6465d', stroke: '#f6465d' }}
           />
         </ComposedChart>
       </ResponsiveContainer>
