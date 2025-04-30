@@ -122,29 +122,6 @@ const Page: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0b0e11] text-[#eaecef] flex flex-col">
-      {/* Top navigation bar - Binance style */}
-      <nav className="bg-[#0b0e11] text-[#eaecef] border-b border-[#232a32] px-4 py-3 shadow-sm">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-6">
-            <h1 className="text-xl font-bold text-[#f0b90b]">GoQuant Trading</h1>
-            <div className="hidden md:flex space-x-1">
-              <a href="#" className="px-3 py-1.5 text-sm hover:text-[#f0b90b] border-b-2 border-[#f0b90b]">Dashboard</a>
-              <a href="#" className="px-3 py-1.5 text-sm hover:text-[#f0b90b] border-b-2 border-transparent">Markets</a>
-              <a href="#" className="px-3 py-1.5 text-sm hover:text-[#f0b90b] border-b-2 border-transparent">Portfolio</a>
-              <a href="#" className="px-3 py-1.5 text-sm hover:text-[#f0b90b] border-b-2 border-transparent">Orders</a>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-[#848e9c] text-xs">
-              {lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : ''}
-            </span>
-            <div className="relative w-7 h-7 rounded-full bg-[#f0b90b] flex items-center justify-center text-xs font-medium text-[#0b0e11]">
-              US
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Market summary bar - Binance style */}
       <div className="bg-[#161b22] border-b border-[#232a32] px-4 py-2">
         <div className="flex flex-wrap items-center justify-between">
@@ -268,7 +245,10 @@ const Page: React.FC = () => {
         <div className="flex justify-between items-center text-[#848e9c]">
           <div>Market Status: <span className="text-[#0ecb81] font-medium">Open</span></div>
           <div>24h Volume: <span className="text-[#eaecef]">$1,423,651,288</span></div>
-          <div>Server Time: {new Date().toLocaleTimeString()}</div>
+          <div>
+            Server Time: {new Date().toLocaleTimeString()} | 
+            Last Updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : '-'}
+          </div>
           <div>© 2025 GoQuant Trading</div>
         </div>
       </footer>
