@@ -60,6 +60,13 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
     };
   }, [data]);
 
+  // Define consistent column classes for alignment
+  const columnClasses = {
+    price: "w-[35%] py-0.5 px-1 relative z-10",
+    amount: "w-[30%] text-right py-0.5 px-1 relative z-10",
+    total: "w-[35%] text-right py-0.5 px-1 relative z-10"
+  };
+
   if (!data) {
     return (
       <div className="flex justify-center items-center h-full text-[#848e9c]">
@@ -144,10 +151,9 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
                 <table className="w-full text-xs">
                   <thead className="sticky top-0 bg-[#161b22] z-10">
                     <tr className="text-[#848e9c]">
-                      <th className="text-left py-1 px-1 font-medium text-[11px]">Price (USD)</th>
-                      <th className="text-right py-1 px-1 font-medium text-[11px]">Amount ({currencySymbol})</th>
-
-                      <th className="text-right py-1 px-1 font-medium text-[11px]">Total</th>
+                      <th className={`${columnClasses.price} font-medium text-[11px]`}>Price (USD)</th>
+                      <th className={`${columnClasses.amount} font-medium text-[11px]`}>Amount ({currencySymbol})</th>
+                      <th className={`${columnClasses.total} font-medium text-[11px]`}>Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -166,9 +172,9 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
                             />
                           </td>
                           {/* Content on top of the bar */}
-                          <td className="text-[#f6465d] py-0.5 px-1 relative z-10 font-medium">{priceNum.toFixed(2)}</td>
-                          <td className="text-right py-0.5 px-1 relative z-10">{quantityNum.toFixed(5)}</td>
-                          <td className="text-right text-[#848e9c] py-0.5 px-1 relative z-10">${(priceNum * quantityNum).toFixed(2)}</td>
+                          <td className={`${columnClasses.price} text-[#f6465d] font-medium`}>{priceNum.toFixed(2)}</td>
+                          <td className={columnClasses.amount}>{quantityNum.toFixed(5)}</td>
+                          <td className={`${columnClasses.total} text-[#848e9c]`}>${(priceNum * quantityNum).toFixed(2)}</td>
                         </tr>
                       );
                     })}
@@ -181,6 +187,13 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
             <div className="border-t border-[#232a32]">
               <div className="overflow-y-auto max-h-[200px] scrollbar-thin scrollbar-thumb-[#2b3139] scrollbar-track-[#1e2329]">
                 <table className="w-full text-xs">
+                  <thead className="sticky top-0 bg-[#161b22] z-10">
+                    <tr className="text-[#848e9c]">
+                      <th className={`${columnClasses.price} font-medium text-[11px]`}>Price (USD)</th>
+                      <th className={`${columnClasses.amount} font-medium text-[11px]`}>Amount ({currencySymbol})</th>
+                      <th className={`${columnClasses.total} font-medium text-[11px]`}>Total</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {data.bids.map(([price, quantity], index) => {
                       const priceNum = parseFloat(price);
@@ -197,9 +210,9 @@ const Orderbook: React.FC<OrderbookProps> = ({ data, currencySymbol = 'BTC' }) =
                             />
                           </td>
                           {/* Content on top of the bar */}
-                          <td className="text-[#0ecb81] py-0.5 px-1 relative z-10 font-medium">{priceNum.toFixed(2)}</td>
-                          <td className="text-right py-0.5 px-1 relative z-10">{quantityNum.toFixed(5)}</td>
-                          <td className="text-right text-[#848e9c] py-0.5 px-1 relative z-10">${(priceNum * quantityNum).toFixed(2)}</td>
+                          <td className={`${columnClasses.price} text-[#0ecb81] font-medium`}>{priceNum.toFixed(2)}</td>
+                          <td className={columnClasses.amount}>{quantityNum.toFixed(5)}</td>
+                          <td className={`${columnClasses.total} text-[#848e9c]`}>${(priceNum * quantityNum).toFixed(2)}</td>
                         </tr>
                       );
                     })}

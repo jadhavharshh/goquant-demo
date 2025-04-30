@@ -209,20 +209,6 @@ const Page: React.FC = () => {
         {/* Left sidebar - Orderbook - Binance style */}
         <div className="col-span-12 md:col-span-3 border-r border-[#232a32]">
           <div className="h-full p-2">
-            <div className="flex justify-between items-center mb-2 px-1">
-              <h2 className="text-sm font-medium text-[#eaecef]">Order Book</h2>
-              <div className="flex text-xs">
-                <button className="px-1.5 py-0.5 bg-[#1e2329] rounded-l text-[#f0b90b]">
-                  0.1
-                </button>
-                <button className="px-1.5 py-0.5 bg-[#1e2329]">
-                  0.5
-                </button>
-                <button className="px-1.5 py-0.5 bg-[#1e2329] rounded-r">
-                  1.0
-                </button>
-              </div>
-            </div>
             <Orderbook data={orderbookData} currencySymbol={currencySymbol} />
           </div>
         </div>
