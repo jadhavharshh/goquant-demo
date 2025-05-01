@@ -19,50 +19,50 @@ const Page: React.FC = () => {
   const [quantity, setQuantity] = useState<string>("0.01")
   const [price, setPrice] = useState<string>("0")
   const [tradingPair, setTradingPair] = useState("BTCUSDT")
-  
+
   // WebSocket reference
   const ws = useRef<WebSocket | null>(null)
-  
+
   // Handle trading pair changes
   const handlePairChange = (newPair: string) => {
     console.log(`Changing trading pair from ${tradingPair} to ${newPair}`)
-    
+
     // Clear current data when changing pairs
     setOrderbookData(null)
     setIsLoading(true)
-    
+
     // Update the trading pair state
     setTradingPair(newPair)
   }
-  
+
   // Setup WebSocket connection
   useEffect(() => {
     console.log(`Setting up WebSocket for ${tradingPair}`)
-    
+
     // Close any existing connection
     if (ws.current) {
       console.log('Closing existing WebSocket connection')
       ws.current.close()
     }
-    
+
     // Create new WebSocket connection
     const wsUrl = `wss://stream.binance.com:9443/ws/${tradingPair.toLowerCase()}@depth20@100ms`
     console.log(`Connecting to: ${wsUrl}`)
-    
+
     const socket = new WebSocket(wsUrl)
     ws.current = socket
-    
+
     // Connection opened
     socket.onopen = () => {
       console.log(`WebSocket connected for ${tradingPair}`)
       setIsLoading(false)
     }
-    
+
     // Listen for messages
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
-        
+
         // Ensure data has the expected structure
         if (data && data.bids && data.asks) {
           // Convert to your existing format
@@ -70,21 +70,21 @@ const Page: React.FC = () => {
             bids: data.bids,
             asks: data.asks
           }
-          
+
           setOrderbookData(formattedData)
           setLastUpdated(new Date())
-          
+
           // Update current price
           if (formattedData.bids.length > 0 && formattedData.asks.length > 0) {
             const bestBid = parseFloat(formattedData.bids[0][0])
             const bestAsk = parseFloat(formattedData.asks[0][0])
             const midPrice = (bestBid + bestAsk) / 2
-            
+
             // Calculate price change
             if (currentPrice) {
               setPriceChange(midPrice - currentPrice)
             }
-            
+
             setCurrentPrice(midPrice)
             setPrice(midPrice.toFixed(2))
           }
@@ -95,18 +95,18 @@ const Page: React.FC = () => {
         console.error('Error parsing WebSocket data:', error)
       }
     }
-    
+
     // Handle errors
     socket.onerror = (error) => {
       console.error('WebSocket error:', error)
       setIsLoading(false)
     }
-    
+
     // Connection closed
     socket.onclose = () => {
       console.log(`WebSocket closed for ${tradingPair}`)
     }
-    
+
     // Cleanup on unmount or when tradingPair changes
     return () => {
       if (socket && socket.readyState !== WebSocket.CLOSED) {
@@ -115,7 +115,7 @@ const Page: React.FC = () => {
       }
     }
   }, [tradingPair]) // Reconnect when trading pair changes
-  
+
   // Format the current trading pair for display in header
   const formattedTradingPair = tradingPair.replace('USDT', '/USDT')
   const currencySymbol = tradingPair.replace('USDT', '')
@@ -145,20 +145,19 @@ const Page: React.FC = () => {
               {Math.abs(priceChange).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
-          
+
           <div className="flex space-x-1 mt-1 md:mt-0">
-            <TradingPairSelector 
-              currentPair={tradingPair} 
-              onPairChange={handlePairChange} 
+            <TradingPairSelector
+              currentPair={tradingPair}
+              onPairChange={handlePairChange}
             />
             {["1H", "4H", "1D", "1W", "1M"].map(timeframe => (
-              <button 
+              <button
                 key={timeframe}
-                className={`px-2 py-0.5 rounded text-xs ${
-                  selectedTimeframe === timeframe 
-                    ? 'bg-[#2b3139] text-[#f0b90b] font-medium' 
-                    : 'bg-[#1e2329] text-[#848e9c] hover:bg-[#2b3139]'
-                }`}
+                className={`px-2 py-0.5 rounded text-xs ${selectedTimeframe === timeframe
+                  ? 'bg-[#2b3139] text-[#f0b90b] font-medium'
+                  : 'bg-[#1e2329] text-[#848e9c] hover:bg-[#2b3139]'
+                  }`}
                 onClick={() => setSelectedTimeframe(timeframe)}
               >
                 {timeframe}
@@ -169,7 +168,7 @@ const Page: React.FC = () => {
       </div>
 
       {/* Main trading interface */}
-      <main className="flex-grow grid grid-cols-12 gap-0">
+      <main className="flex-grow grid grid-cols-12 gap-0 overflow-y-auto">
         {/* Loading overlay */}
         {isLoading && !orderbookData && (
           <div className="absolute inset-0 bg-[#0b0e11]/80 z-50 flex items-center justify-center">
@@ -215,24 +214,24 @@ const Page: React.FC = () => {
               <MarketDepthChart data={orderbookData} currencySymbol={currencySymbol} />
             </div>
           </div>
-          
-          <div className="grid grid-cols-2 gap-2">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="bg-[#161b22] border border-[#232a32] rounded">
               <div className="flex justify-between items-center px-3 py-2 border-b border-[#232a32]">
                 <h2 className="text-sm font-medium text-[#eaecef]">Spread History</h2>
                 <div className="text-xs text-[#848e9c]">1-min rolling window</div>
               </div>
-              <div className="h-48 p-2">
+              <div className="h-40 md:h-48 p-2">
                 <SpreadIndicator data={orderbookData} />
               </div>
             </div>
-            
+
             <div className="bg-[#161b22] border border-[#232a32] rounded">
               <div className="flex justify-between items-center px-3 py-2 border-b border-[#232a32]">
                 <h2 className="text-sm font-medium text-[#eaecef]">Order Book Imbalance</h2>
                 <div className="text-xs text-[#848e9c]">Buy/Sell Pressure</div>
               </div>
-              <div className="h-48 p-2">
+              <div className="h-40 md:h-48 p-2">
                 <OrderbookImbalance data={orderbookData} currencySymbol={currencySymbol} />
               </div>
             </div>
@@ -246,7 +245,7 @@ const Page: React.FC = () => {
           <div>Market Status: <span className="text-[#0ecb81] font-medium">Open</span></div>
           <div>24h Volume: <span className="text-[#eaecef]">$1,423,651,288</span></div>
           <div>
-            Server Time: {new Date().toLocaleTimeString()} | 
+            Server Time: {new Date().toLocaleTimeString()} |
             Last Updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : '-'}
           </div>
           <div>© 2025 GoQuant Trading</div>
