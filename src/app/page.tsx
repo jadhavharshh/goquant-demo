@@ -146,23 +146,12 @@ const Page: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex space-x-1 mt-1 md:mt-0">
+          <div className="flex space-x-1 mt-1 md:mt-0 j">
             <TradingPairSelector
               currentPair={tradingPair}
               onPairChange={handlePairChange}
             />
-            {["1H", "4H", "1D", "1W", "1M"].map(timeframe => (
-              <button
-                key={timeframe}
-                className={`px-2 py-0.5 rounded text-xs ${selectedTimeframe === timeframe
-                  ? 'bg-[#2b3139] text-[#f0b90b] font-medium'
-                  : 'bg-[#1e2329] text-[#848e9c] hover:bg-[#2b3139]'
-                  }`}
-                onClick={() => setSelectedTimeframe(timeframe)}
-              >
-                {timeframe}
-              </button>
-            ))}
+
           </div>
         </div>
       </div>
