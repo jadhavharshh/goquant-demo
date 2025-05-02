@@ -231,15 +231,21 @@ const Page: React.FC = () => {
       </main>
 
       {/* Footer - Market status */}
+      {/* Footer - Market status */}
       <footer className="bg-[#161b22] border-t border-[#232a32] py-1.5 px-4 text-xs">
-        <div className="flex justify-between items-center text-[#848e9c]">
-          <div>Market Status: <span className="text-[#0ecb81] font-medium">Open</span></div>
-          <div>24h Volume: <span className="text-[#eaecef]">$1,423,651,288</span></div>
-          <div>
-            Server Time: {new Date().toLocaleTimeString()} |
-            Last Updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : '-'}
+        <div className="flex flex-col space-y-2 sm:space-y-1 md:flex-row md:justify-between md:items-center text-[#848e9c]">
+          <div className="flex justify-between md:justify-start md:w-auto">
+            <div>Market Status: <span className="text-[#0ecb81] font-medium">Open</span></div>
+            <div className="md:ml-4">24h Volume: <span className="text-[#eaecef]">$1,423,651,288</span></div>
           </div>
-          <div>© 2025 GoQuant Trading</div>
+
+          <div className="flex justify-between md:justify-start md:w-auto">
+            <div className="hidden sm:block">
+              Server Time: {new Date().toLocaleTimeString()} |&nbsp;
+              <span className="sm:hidden md:inline">Last Updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : '-'}</span>
+            </div>
+            <div className="md:ml-4">© 2025 GoQuant Trading</div>
+          </div>
         </div>
       </footer>
     </div>
