@@ -121,7 +121,7 @@ const Page: React.FC = () => {
   const currencySymbol = tradingPair.replace('USDT', '')
 
   return (
-    <div className="min-h-screen bg-[#0b0e11] text-[#eaecef] flex flex-col">
+    <div className="min-h-screen bg-[#0b0e11] text-[#eaecef] flex flex-col overflow-auto">
       {/* Market summary bar - Binance style */}
       <div className="bg-[#161b22] border-b border-[#232a32] px-4 py-2">
         <div className="flex flex-wrap items-center justify-between">
@@ -169,6 +169,7 @@ const Page: React.FC = () => {
 
       {/* Main trading interface */}
       <main className="flex-grow grid grid-cols-12 gap-0 overflow-y-auto">
+
         {/* Loading overlay */}
         {isLoading && !orderbookData && (
           <div className="absolute inset-0 bg-[#0b0e11]/80 z-50 flex items-center justify-center">
@@ -215,7 +216,7 @@ const Page: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
             <div className="bg-[#161b22] border border-[#232a32] rounded">
               <div className="flex justify-between items-center px-3 py-2 border-b border-[#232a32]">
                 <h2 className="text-sm font-medium text-[#eaecef]">Spread History</h2>
@@ -237,6 +238,7 @@ const Page: React.FC = () => {
             </div>
           </div>
         </div>
+
       </main>
 
       {/* Footer - Market status */}
