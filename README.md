@@ -44,7 +44,7 @@ Ensure you have the following installed:
 ## 🛠️ Installation
 
 ```bash
-git clone https://github.com/yourusername/goquant-demo.git
+git clone https://github.com/jadhavharshh/goquant-demo.git
 cd goquant-demo
 npm install
 ```
