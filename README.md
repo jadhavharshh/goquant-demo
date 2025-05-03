@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GoQuant: Crypto Trading Interface
 
-## Getting Started
+A modern, responsive cryptocurrency trading interface built with Next.js and real-time WebSocket data from Binance.
 
-First, run the development server:
+---
+
+## 🚀 Features
+
+* **Real-time Orderbook Visualization**: Live display of bid and ask orders with depth visualization.
+* **Dynamic Market Depth Chart**: Visual representation of buy and sell liquidity.
+* **Spread Indicator**: Track bid-ask spread changes over time.
+* **Orderbook Imbalance**: Visual indicators of buy/sell pressure and market sentiment.
+* **Multiple Trading Pairs**: Switch between BTC, ETH, XRP, DOGE, SOL.
+* **Responsive Design**: Optimized for both desktop and mobile.
+
+---
+
+## 🖼️ Demo
+
+![GoQuant Demo Interface](https://via.placeholder.com/800x450.png?text=GoQuant+Interface+Screenshot)
+
+---
+
+## 🧰 Technologies Used
+
+* **Next.js 15** – React framework with App Router
+* **React 19** – Frontend UI library
+* **TypeScript** – Type-safe JavaScript
+* **Tailwind CSS 4** – Utility-first CSS framework
+* **Recharts** – Composable charting library for React
+* **Binance WebSocket API** – Real-time market data
+
+---
+
+## 📦 Prerequisites
+
+Ensure you have the following installed:
+
+* Node.js (v20.x or higher)
+* npm, yarn, or bun (any JS package manager)
+
+---
+
+## 🛠️ Installation
+
+```bash
+git clone https://github.com/yourusername/goquant-demo.git
+cd goquant-demo
+npm install
+```
+
+---
+
+## ▶️ Running the Project
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open your browser and navigate to `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏗️ Building for Production
 
-## Learn More
+```bash
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📁 Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+/
+├── public/                      # Static assets
+├── src/
+│   ├── app/                     # Next.js App Router components
+│   │   ├── layout.tsx           # Root layout with theme provider
+│   │   ├── page.tsx             # Main trading interface
+│   │   └── globals.css          # Global CSS (Tailwind)
+│   ├── components/              # React components
+│   │   ├── Orderbook.tsx
+│   │   ├── SpreadIndicator.tsx
+│   │   ├── OrderbookImbalance.tsx
+│   │   ├── MarketDepthChart.tsx
+│   │   ├── TradingPairSelector.tsx
+│   │   ├── useBinanceWebSocket.tsx
+│   │   └── ui/                  # Shared UI components
+│   └── lib/                     # Utilities and types
+│       ├── api.ts
+│       ├── types.ts
+│       └── utils.ts
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📌 Assumptions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* **WebSocket Connectivity**: Assumes stable internet for real-time data.
+* **API Availability**: Uses Binance's public WebSocket API without heavy rate limits.
+* **Market Hours**: No handling required since crypto trades 24/7.
+* **Data Precision**: Fixed decimal precision used across pairs.
+* **Authentication**: No user auth is included (demo only).
+
+---
+
+## 🧱 Libraries Used
+
+* `next-themes`: Light/dark theme support
+* `recharts`: Charts for market depth and spread
+* `clsx` & `tailwind-merge`: Class name management
+* `lucide-react`: Icon components
+* `next/font`: Font optimization (Geist)
+
+---
+
+## 🔮 Future Improvements
+
+* Enable order placement and execution
+* Add historical price charts with timeframes
+* Include recent trade history visualization
+* Implement user authentication & account management
+* Add trading pair watchlists and favorites
+* Improve mobile UX with dedicated layouts
+
+---
